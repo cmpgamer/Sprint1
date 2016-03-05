@@ -1,0 +1,17 @@
+{% extends "layout.html" %}
+
+{% block content %}
+  <div class="col-md-10">
+    <div class="panel panel-info">
+      <div class="panel-heading text-center">
+        <h2>Welcome to UMW Reviews!</h2>
+      </div>
+      <div class="panel-body text-center">
+        <h4>You can review movies or get movie recommendations.</h4>
+      </div>
+    </div>
+    
+    <img src="{{ url_for('static', filename='images/img2.jpg') }}" class="img-responsive center-block"  alt="Image 1" />
+    
+  </div>
+{% endblock %}
