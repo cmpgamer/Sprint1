@@ -1,0 +1,26 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="col-md-8">
+    <div class="panel panel-info">
+      <div class="panel-heading text-center">
+        <h2>Movie Results</h2>
+      </div>
+    </div>
+  </div>
+
+
+    <div class="panel panel-primary" ng-repeat="row in searchResults">
+      <div class="panel-body">
+          <div class="ng-scope">
+              <span ng-bind="row.text"></span>
+          </div>
+        </div>
+    </div>
+
+
+
+
+
+
+{% endblock %}

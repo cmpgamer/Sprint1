@@ -36,13 +36,25 @@
             <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
               <ul class="nav navbar-nav">
                 <li {% if current_page == 'home' %} class="active" {% endif %}><a href="#">Home <span class="sr-only">(current)</span></a></li>
-                {% if 'username' in session %}
-                  <li><a href="/logout">Logout</a></li>
-                {% else %}
-                  <li><a href="#" data-toggle="modal" data-target="#loginModal">Login</a></li>
-                  <li><a href="#" data-toggle="modal" data-target="#registerModal">Register</a></li>
-                {% endif %}
+                
                   <li><a href="#" data-toggle="modal" data-target="#searchModal">Search for Movies</a></li>
+              </ul>
+              
+              <ul class="nav navbar-nav navbar-right">
+                {% if 'username' not in session %}
+                  <li><a href="#" data-toggle="modal" data-target="#registerModal">Register</a></li>
+                  <li><a href="#" data-toggle="modal" data-target="#loginModal">Login</a></li>
+                {% else %}
+                <li class="dropdown">
+                  
+                  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-user" aria-hidden="true"></span> {{ session['username'] }}<span class="caret"></span></a>
+                  <ul class="dropdown-menu">
+                    <li><a href="/logout">Logout</a></li>
+                  </ul>
+                </li>
+                {% endif %}  
+              </ul>
+              
               </ul>
             </div><!-- /.navbar-collapse -->
           </div><!-- /.container-fluid -->
@@ -65,7 +77,7 @@
             <div class="modal-content">
               <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">Register</h4>
+                <h4 class="modal-title">Login</h4>
               </div>
               <div class="modal-body">
                 <!-- bootstrap forms begin -->
@@ -97,7 +109,7 @@
       
       <!-- Begin Search Modal -->
       <div id="searchModal" class="modal fade" role="dialog">
-        <form role="search" ng-submit="search()">
+        <!--<form role="search" ng-submit="search()">-->
           <div class="modal-dialog">
         
             <!-- Modal content-->
@@ -111,24 +123,45 @@
                 
                 <div class="form-group">
                   <label for="search">Search by Name</label>
-                  <input type="text" class="form-control" name="search" id="search" placeholder="Search...">
+                  <input type="text" name="search" id="search" ng-model="text" class="form-control" placeholder="Search...">
                 </div>
+                
+                <div class="panel panel-default" style="display:hidden" id="searchResultsPanel">
+                  <div class="panel panel-primary" style="margin:1em" ng-repeat="result in searchResults" >
+                    <div class="panel-body">
+                      <div class="row">
+                        <div class="col-md-8">
+                          <div class="ng-scope" style="vertical-align:middle;">
+                            <span ng-bind="result.text"></span>
+                          </div>
+                        </div>  
+                        <div class="col-md-2">
+                            <button class="btn btn-primary text-center" style="width:100%;height:3em" type="text" id="search" ng-click="result.id" >Rate</button>
+                        </div>
+                        <div class="col-md-2">
+                            <button class="btn btn-danger text-center" style="width:100%;height:3em" type="text" id="search" ng-click="result.id" >Hate</button>
+                        </div>
+                      </div>
+                      
+                    </div>
+                  </div>  
+                </div>
+                
+                
               </div>
               <div class="modal-footer">
                 <div class="row">
-                  
                   <div class="col-md-6">
                     <button type="button" class="btn btn-danger" data-dismiss="modal" style="width:100%;">Close</button>    
                   </div>
                   <div class="col-md-6">
-                    <button type="submit" class="btn btn-primary" style="width:100%;margin-bottom:5px;">Search</button>
+                    <button type="submit" class="btn btn-primary" style="width:100%;margin-bottom:5px;" ng-disabled="!text"  ng-click="search(-1)"  >Search</button>
                   </div>
-                  
                 </div>
               </div>
             </div>
           </div>
-        </form>
+        <!--</form>-->
       </div>
       
       

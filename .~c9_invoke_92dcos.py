@@ -51,16 +51,15 @@ def search(searchItem):
     searchTerm = '%{0}%'.format(searchItem)
     
     
-    #print(searchItem)
     
     cur.execute(movieSearchQuery, (searchTerm,));
     results = cur.fetchall();
     
-    print(results)
+    #print(results)
     
-    for i in range(len(results)):
-        resultsDict = {'text' : results[i]['movie_title']}
-        queryResults.append(resultsDict)
+    # for i in range(len(results)):
+    #     resultsDict = {'text' : results[i]['content'], 'name' : results[i]['username']}
+    #     queryResults.append(resultsDict)
         
     emit('searchResults', queryResults)
     cur.close()
@@ -90,7 +89,7 @@ def index():
     
     
 doesUserAlreadyExist = 'SELECT * FROM users WHERE username = %s LIMIT 1'
-registerNewUser = "INSERT INTO users VALUES (default, %s, %s, %s, crypt(%s, gen_salt('md5')))"
+registerNewUser = "INSERT INTO users VALUES (default, %s, %s, %s, crypt(%s, gen_salt('md5'))) RETURNING users.id"
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     redirectPage = 'index.html'
@@ -124,7 +123,6 @@ def register():
                 error += 'Username is already taken.\n'
             else:
                 cur.execute(registerNewUser, (firstName, lastName, username, password)) # add user to database
-                db.commit()
 
         cur.close()
         db.close()
@@ -163,20 +161,13 @@ def login():
             session['username'] = results['username']
             session['id'] = results['id']
             results = []
-            return redirect(url_for('landing'))
+            return redirect(url_for('chat'))
          
     if len(error) != 0:
         pass
         # flash error
         
     return render_template(redirectPage, error=error)
-
-@app.route('/landing')
-def landing():
-    if 'username' in session:
-        return render_template('landing.html') # chat.html
-    else:
-        return render_template('index.html')
 
 @app.route('/logout', methods=['GET', 'POST'])
 def logout():

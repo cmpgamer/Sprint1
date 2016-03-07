@@ -14,11 +14,20 @@ ISSChatApp.controller('SearchController', function($scope){
     };
     
     socket.on('searchResults', function(results){
+        if (results.length > 0) {
+            $("#searchResultsPanel").show();
+        }
+        else {
+            $("#searchResultsPanel").hide();
+        }
         for(var i = 0; i < results.length; i++){
             console.log(results[i]);
             $scope.searchResults.push(results[i]);
-            $scope.$apply();
+            // $("searchResultsPanel").animate({
+            //     height: '+=5em'
+            // });
         }
+        $scope.$apply();
         $scope.searchResults = [];
     });
     
