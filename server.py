@@ -1,4 +1,6 @@
 import sys
+import resource
+from recommender import recommender
 reload(sys)
 sys.setdefaultencoding("UTF8")
 
@@ -21,7 +23,7 @@ users = {}
 
 
 def connect_to_db():
-    return psycopg2.connect('dbname=movie_reviews user=postgres password=Cmpgamer1 host=localhost')
+    return psycopg2.connect('dbname=movie_recommendations user=bryan password=password host=localhost')
     
 loadMessagesQuery = 'SELECT username, content FROM messages INNER JOIN users ON messages.senderid = users.id WHERE messages.room_id = %s ORDER BY messages.id DESC LIMIT 10' # keep track of last 50 messages   
 
@@ -65,21 +67,6 @@ def search(searchItem):
     emit('searchResults', queryResults)
     cur.close()
     db.close()
-
-
-
-# @app.route('/chat')
-# def chat():
-#     if 'username' in session:
-#         return render_template('chat.html') # chat.html
-#     else:
-#         return render_template('index.html')
-
-
-#TODO make new search functions displaying queries
-
-
-
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -182,6 +169,59 @@ def landing():
 def logout():
     session.clear()
     return redirect(url_for('index'))
+    
+
+movieRatingQuery = "SELECT mt.movie_title as movie_id, u.id, mr.rating FROM movie_ratings mr JOIN users u on u.id = mr.user_id JOIN movie_titles mt ON mt.id = mr.movie_id"
+movieIDQuery = "SELECT * FROM movie_titles"
+userIDQuery = "SELECT id FROM users"
+
+@app.route('/recommend', methods=['GET', 'POST'])
+def recommend():
+    redirectPage = 'recommendations.html'
+    
+    data = {}
+    productid2name = {}
+    userRatings= {}
+    db = connect_to_db()
+    cur = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    cur.execute(movieRatingQuery)
+    results = cur.fetchall()
+    
+    for row in results:
+        user = row['id']
+        movie = row['movie_id']
+        rating = float(row['rating'])
+        if user in data:
+            currentRatings = data[user]
+        else:
+            currentRatings = {}
+        currentRatings[movie] = rating
+        data[user] = currentRatings
+    
+    cur.execute(movieIDQuery)
+    results = cur.fetchall()
+    
+    for row in results:
+        movieID = row['id']
+        title = row['movie_title']
+        productid2name[movieID] = title
+    
+    cur.close()
+    db.close()
+    
+   
+    
+    movieLens = recommender(5, 15) #Manhattan Distance 5 Nearest Neighbors
+    movieLens.data = data
+    print(movieLens.recommend(1))
+    
+    
+    # movieLens.computeSlopeOneDeviations()
+    # print("Did I get ere")
+    # print(movieLens.slopeOneRecommendations(data['1']))
+     
+
+    return render_template(redirectPage)
     
 # start the server
 if __name__ == '__main__':
